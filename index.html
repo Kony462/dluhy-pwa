@@ -81,7 +81,7 @@ function render(){
  if(current){renderDetail(main);return}
  document.getElementById("header").style.display="";
  let people=state.people.filter(p=>filter==="all"||(filter==="oweMe"&&isOweMe(p))||(filter==="iOwe"&&!isOweMe(p)));
- if(!people.length){main.innerHTML='<div class="empty"><div style="font-size:42px">💸</div><h3>Žádné záznamy</h3><p>Přidej první fakturu nebo půjčku pomocí +.</p></div>';return}
+ if(!people.length){main.innerHTML='<div class="empty"><div style="font-size:42px">💸</div><h3>Žádné záznamy</h3><p>Přidej první fakturu nebo půjčku pomocí +.</p></div><button class="secondary" onclick="settings()">⚙ Nastavení</button>';return}
  let totalOweMe=state.people.reduce((a,p)=>a+(isOweMe(p)?Math.max(0,balance(p)):0),0);
  let totalIOwe=state.people.reduce((a,p)=>a+(!isOweMe(p)?Math.max(0,-balance(p)):0),0);
  main.innerHTML=people.map(p=>`<div class="card" onclick="openPerson('${p.id}')"><div class="person">${photoHtml(p)}<div class="grow"><div class="name">${esc(p.name)}</div><div class="muted">${isOweMe(p)?"Dluží mi":"Já dlužím"}</div></div><div class="amount" style="color:${isOweMe(p)?"var(--red)":"var(--blue)"}">${money(Math.abs(balance(p)))}</div></div></div>`).join("")+
