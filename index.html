@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n<meta name="apple-mobile-web-app-title" content="Dluhy">\n<link rel="manifest" href="manifest.webmanifest">\n<link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#0b0f14">
+<title>Dluhy</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--blue:#2563eb;--green:#16a34a;--red:#ef4444;--soft:#eef2ff}
+*{box-sizing:border-box}body.dark{--bg:#0b0f14;--card:#151a21;--text:#f3f4f6;--muted:#9ca3af;--line:#2b323c;--soft:#172554}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+.app{max-width:540px;margin:auto;min-height:100vh;background:var(--bg);padding-top:env(safe-area-inset-top);padding-bottom:calc(90px + env(safe-area-inset-bottom))}header{padding:22px 18px 10px;position:sticky;top:0;background:var(--bg);z-index:3}h1{margin:0;font-size:30px}.sub{color:var(--muted);margin-top:3px}.tabs{display:flex;background:var(--card);border-radius:12px;padding:3px;margin-top:16px;border:1px solid var(--line)}.tabs button{flex:1;border:0;padding:9px;border-radius:9px;background:transparent;color:var(--muted);font-weight:600}.tabs button.active{background:var(--soft);color:var(--blue)}
+main{padding:8px 16px}.card{background:var(--card);border-radius:17px;padding:17px;margin:10px 0;border:1px solid var(--line)}.person{display:flex;align-items:center;gap:12px}.avatar{width:44px;height:44px;border-radius:50%;background:#dbe3ed;display:grid;place-items:center;font-weight:800;color:#536273}.grow{flex:1}.name{font-weight:750}.muted{color:var(--muted);font-size:13px;margin-top:3px}.amount{font-size:19px;font-weight:800;color:var(--red)}.totals{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 2px}.total{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}.total .value{font-size:24px;font-weight:850;margin-top:3px}.total.in .value{color:var(--red)}.total.out .value{color:var(--blue)}.fab{position:fixed;right:max(20px,calc((100vw - 540px)/2 + 20px));bottom:22px;width:58px;height:58px;border:0;border-radius:50%;background:var(--blue);color:white;font-size:30px;box-shadow:0 8px 22px #2563eb55}
+button{font:inherit;cursor:pointer}.primary,.secondary{width:100%;border:0;border-radius:13px;padding:13px;font-weight:750;margin-top:10px}.primary{background:var(--green);color:#fff}.secondary{background:var(--soft);color:var(--blue)}.danger{background:#fee2e2;color:#b91c1c}
+.back{border:0;background:var(--card);color:var(--blue);padding:10px 14px;margin:2px 0 8px;border-radius:12px;font-weight:750;border:1px solid var(--line);font-size:16px}.tx-actions{display:flex;gap:8px;margin-top:9px}.tx-actions button{margin:0;padding:7px 10px;width:auto;font-size:14px}.detailHead{text-align:center;padding:5px}.detailHead .avatar{margin:auto;width:64px;height:64px;font-size:22px}.detailHead h2{margin:8px 0 2px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;text-align:center}.stat b{display:block;margin-top:4px}.remaining{background:#fff0f0;border-radius:14px;padding:14px;text-align:center;margin-top:8px}.dark .remaining{background:#3b171a}.remaining span{display:block;color:var(--red);font-size:13px}.remaining b{font-size:27px;color:var(--red)}
+.sectionTitle{margin:24px 2px 8px;font-size:18px;font-weight:800}.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.invoice{padding:13px 0;border-bottom:1px solid var(--line)}.invoice:last-child{border-bottom:0}.ok{color:var(--green);font-weight:800}.warn{color:#d97706;font-weight:800}.tx{padding:12px 0;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.plus{color:var(--green);font-weight:750}.minus{color:var(--red);font-weight:750}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;z-index:10}.modal.show{display:flex}.sheet{background:var(--card);width:100%;max-width:540px;margin:auto;border-radius:22px 22px 0 0;padding:19px 18px calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}.sheet h2{margin:0 0 12px}.close{float:right;border:0;background:var(--line);color:var(--text);border-radius:50%;width:34px;height:34px}label{display:block;font-size:13px;color:var(--muted);margin:12px 0 5px}input,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px;font-size:17px;background:var(--card);color:var(--text)}.empty{text-align:center;color:var(--muted);padding:45px 15px}.settings .item{padding:15px 0;border-bottom:1px solid var(--line)}.switch{display:flex;align-items:center;justify-content:space-between}
+
+.locked #lock{display:flex}.unlocked .app{display:block}.lock{position:fixed;inset:0;background:var(--bg);color:var(--text);display:none;align-items:center;justify-content:center;padding:24px;z-index:100}.lockbox{width:min(420px,100%);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 12px 40px #0002}.lockbox h2{margin:0 0 8px}.lockbox p{color:var(--muted);line-height:1.45}.lockbox .err{color:var(--red);min-height:20px;font-size:14px;margin-top:8px}</style>
+</head>
+<body class="locked">
+<div id="lock" class="lock"><div class="lockbox"><div style="font-size:42px">🔐</div><h2 id="lockTitle">Dluhy jsou zamčené</h2><p id="lockText">Nastav si 4–6místný PIN. PIN bude uložen pouze v tomto zařízení.</p><input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" type="password" placeholder="PIN"><input id="pin2" inputmode="numeric" maxlength="6" type="password" placeholder="PIN znovu" style="margin-top:8px;display:none"><button class="primary" id="lockBtn">Pokračovat</button><div class="err" id="lockErr"></div><div class="muted" style="margin-top:12px;font-size:12px">PIN chrání přístup k aplikaci na tomto zařízení.</div></div></div>
+
+<div class="app">
+<header id="header"><h1>Dluhy</h1><div class="sub">Půjčky, faktury a splátky na jednom místě.</div>
+<div class="tabs"><button class="active" data-filter="all">Všichni</button><button data-filter="oweMe">Dluží mi</button><button data-filter="iOwe">Já dlužím</button></div></header>
+<main id="main"></main><button class="fab" id="fab">+</button>
+</div>
+<div class="modal" id="modal"><div class="sheet"><button class="close" onclick="closeModal()">×</button><h2 id="modalTitle"></h2><div id="form"></div></div></div>
+<script>
+const KEY="dluhy_mvp_v2";let state=JSON.parse(localStorage.getItem(KEY)||'{"people":[],"theme":"dark"}'),current=null,filter="all";
+const money=n=>new Intl.NumberFormat("cs-CZ",{style:"currency",currency:"CZK",maximumFractionDigits:0}).format(n);
+const dateFmt=s=>new Intl.DateTimeFormat("cs-CZ",{day:"numeric",month:"numeric",year:"numeric"}).format(new Date(s));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch(e){console.error(e);alert("Nepodařilo se uložit data. Fotka může být příliš velká. Zkus jinou fotku nebo ji zmenši.");return false}};
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const avatar=n=>esc((n||"?").trim().charAt(0).toUpperCase());
+function balance(p){return p.transactions.reduce((a,t)=>a+t.amount,0)}
+function directionOf(p){return p.direction||(balance(p)>=0?"oweMe":"iOwe")}
+function isOweMe(p){return directionOf(p)==="oweMe"}
+function applyTheme(){document.body.classList.toggle("dark",state.theme==="dark");document.querySelector('meta[name="theme-color"]').content=state.theme==="dark"?"#0b0f14":"#f4f6f8"}
+applyTheme();
+
+function playSound(type){
+ if(state.sounds===false)return;
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  const c=new C(),o=c.createOscillator(),g=c.createGain(),n=c.currentTime;
+  o.type=type==="paid"?"sine":"triangle";
+  if(type==="paid"){o.frequency.setValueAtTime(660,n);o.frequency.exponentialRampToValueAtTime(990,n+.12)}
+  else if(type==="error"){o.frequency.setValueAtTime(180,n);o.frequency.exponentialRampToValueAtTime(100,n+.16)}
+  else{o.frequency.setValueAtTime(520,n);o.frequency.exponentialRampToValueAtTime(760,n+.08)}
+  g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.08,n+.015);g.gain.exponentialRampToValueAtTime(.0001,n+(type==="paid"?.24:.14));
+  o.connect(g);g.connect(c.destination);o.start(n);o.stop(n+(type==="paid"?.26:.16));
+ }catch(e){}
+}
+function photoHtml(p,size=44){
+ return p.photo?`<img src="${p.photo}" alt="" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;display:block;background:#dbe3ed" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"> <div class="avatar" style="display:none;width:${size}px;height:${size}px">${avatar(p.name)}</div>`:`<div class="avatar" style="width:${size}px;height:${size}px">${avatar(p.name)}</div>`;
+}
+function imageToDataURL(file,maxSize=900,quality=.72){
+ return new Promise((resolve,reject)=>{
+  if(!file||!file.type.startsWith("image/"))return reject(new Error("Vybraný soubor není obrázek."));
+  const reader=new FileReader();
+  reader.onerror=()=>reject(new Error("Obrázek se nepodařilo načíst."));
+  reader.onload=()=>{
+   const img=new Image();
+   img.onerror=()=>reject(new Error("Tento formát obrázku se nepodařilo otevřít."));
+   img.onload=()=>{
+    const scale=Math.min(1,maxSize/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+    const w=Math.max(1,Math.round((img.naturalWidth||img.width)*scale)),h=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
+    const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,w,h);
+    resolve(canvas.toDataURL("image/jpeg",quality));
+   };
+   img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+ });
+}
+
+function render(){
+ const main=document.getElementById("main");
+ if(current){renderDetail(main);return}
+ document.getElementById("header").style.display="";
+ let people=state.people.filter(p=>filter==="all"||(filter==="oweMe"&&isOweMe(p))||(filter==="iOwe"&&!isOweMe(p)));
+ if(!people.length){main.innerHTML='<div class="empty"><div style="font-size:42px">💸</div><h3>Žádné záznamy</h3><p>Přidej první fakturu nebo půjčku pomocí +.</p></div>';return}
+ let totalOweMe=state.people.reduce((a,p)=>a+(isOweMe(p)?Math.max(0,balance(p)):0),0);
+ let totalIOwe=state.people.reduce((a,p)=>a+(!isOweMe(p)?Math.max(0,-balance(p)):0),0);
+ main.innerHTML=people.map(p=>`<div class="card" onclick="openPerson('${p.id}')"><div class="person">${photoHtml(p)}<div class="grow"><div class="name">${esc(p.name)}</div><div class="muted">${isOweMe(p)?"Dluží mi":"Já dlužím"}</div></div><div class="amount" style="color:${isOweMe(p)?"var(--red)":"var(--blue)"}">${money(Math.abs(balance(p)))}</div></div></div>`).join("")+
+ `<div class="totals"><div class="total in"><div class="muted">Celkem mi dluží</div><div class="value">${money(totalOweMe)}</div></div><div class="total out"><div class="muted">Celkem dlužím</div><div class="value">${money(totalIOwe)}</div></div></div>
+ <button class="secondary" onclick="settings()">⚙ Nastavení</button>`;
+}
+function renderDetail(main){
+ document.getElementById("header").style.display="none";let p=state.people.find(x=>x.id===current);if(!p){current=null;render();return}
+ let b=balance(p), oweMe=isOweMe(p), invoices=p.invoices||[], tx=[...p.transactions].filter(t=>t.type==="payment").sort((a,b)=>new Date(b.date)-new Date(a.date));
+ let invoiced=invoices.reduce((a,i)=>a+i.amount,0), paid=p.transactions.filter(t=>t.type==="payment").reduce((a,t)=>a+Math.abs(t.amount),0);
+ main.innerHTML=`<button class="back" onclick="current=null;render()">‹ Zpět</button>
+ <div class="detailHead">${photoHtml(p,64)}<h2>${esc(p.name)}</h2><div class="muted">${oweMe?"Dluží mi":"Já dlužím"}</div></div>
+ <div class="stats"><div class="stat"><span class="muted">${oweMe?"Vyfakturováno":"Celkem dlužím"}</span><b>${money(invoiced)}</b></div><div class="stat"><span class="muted">${oweMe?"Přijato":"Uhrazeno"}</span><b style="color:var(--green)">${money(paid)}</b></div></div>
+ <div class="remaining"><span>Celkem zbývá</span><b>${money(Math.abs(b))}</b></div>
+ <button class="primary" onclick="addPayment('${p.id}')">＋ ${oweMe?"Zapsat přijatou platbu":"Zapsat zaplacenou částku"}</button>
+ <button class="secondary" onclick="addInvoice('${p.id}')">＋ Přidat fakturu</button>
+ <div class="sectionTitle">${oweMe?"Faktury":"Závazky"}</div>
+ <div class="card">${invoices.length?invoices.map(i=>{let paid=invoicePaid(p,i.id),left=Math.max(0,i.amount-paid);return `<div class="invoice">
+ <div class="row"><b>${esc(i.name)}</b><span class="${left===0?'ok':'warn'}">${left===0?'✓ Uhrazeno':money(left)}</span></div>
+ <div class="muted">${dateFmt(i.date)} · Faktura ${money(i.amount)} · uhrazeno ${money(paid)}</div>
+ <div style="display:flex;gap:8px;margin-top:10px"><button class="secondary" style="margin:0;padding:8px" onclick="editInvoice('${p.id}','${i.id}')">Upravit</button><button class="secondary danger" style="margin:0;padding:8px" onclick="deleteInvoice('${p.id}','${i.id}')">Smazat</button></div>
+ </div>`}).join(""):'<div class="empty">Zatím žádné faktury.</div>'}</div>
+ <div class="sectionTitle">Historie ${oweMe?"splátek":"plateb"}</div><div class="card">${tx.length?tx.map(t=>`<div class="tx"><div class="row"><div><b>${oweMe?"Přijatá platba":"Zaplacená částka"}</b><div class="muted">${dateFmt(t.date)}${t.note?" · "+esc(t.note):""}</div></div><div class="plus">+ ${money(Math.abs(t.amount))}</div></div><div class="tx-actions"><button class="secondary" onclick="editPayment('${p.id}','${t.id}')">Upravit</button><button class="secondary danger" onclick="deletePayment('${p.id}','${t.id}')">Smazat</button></div></div>`).join(""):'<div class="empty">Zatím žádné splátky.</div>'}</div>
+ <button class="secondary" onclick="changePhoto('${p.id}')">📷 Změnit fotku dlužníka</button>
+ <button class="secondary danger" onclick="deletePerson('${p.id}')">Smazat osobu a historii</button>`;
+}
+function invoicePaid(p,id){return (p.allocations||[]).filter(a=>a.invoiceId===id).reduce((s,a)=>s+a.amount,0)}
+function openPerson(id){current=id;render()}
+function openModal(title,body){document.getElementById("modalTitle").textContent=title;document.getElementById("form").innerHTML=body;document.getElementById("modal").classList.add("show")}
+function closeModal(){document.getElementById("modal").classList.remove("show")}
+
+function ensurePerson(name,direction="oweMe"){let p=state.people.find(x=>x.name.toLowerCase()===name.toLowerCase()&&directionOf(x)===direction);if(!p){p={id:crypto.randomUUID(),name,direction,transactions:[],invoices:[],allocations:[]};state.people.push(p)}return p}
+function addInvoice(existing=null){
+ let p=existing?state.people.find(x=>x.id===existing):null;
+ const title=existing?(isOweMe(p)?"Přidat fakturu":"Přidat závazek"):"Přidat záznam";
+ const saveLabel=existing?(isOweMe(p)?"Uložit fakturu":"Uložit závazek"):"Uložit záznam";
+ openModal(title,`${!p?'<label>Osoba / firma</label><input id="name" placeholder="Např. Firma ABC"><label>Fotka (volitelně)</label><input id="photo" type="file" accept="image/*"><label>Směr</label><select id="direction"><option value="oweMe">Dluží mi</option><option value="iOwe">Já dlužím</option></select>':""}
+ <label>Číslo / označení</label><input id="invname" placeholder="Např. 2026-06 nebo půjčka">
+ <label>Částka</label><input id="amount" type="number" inputmode="decimal" min="1" placeholder="41000">
+ <label>Datum</label><input id="date" type="date" value="${new Date().toISOString().slice(0,10)}">
+ <button class="primary" onclick="saveInvoice('${existing||""}')">${saveLabel}</button>`);
+}
+function editInvoice(personId,invoiceId){
+ const p=state.people.find(x=>x.id===personId),i=(p.invoices||[]).find(x=>x.id===invoiceId);if(!i)return;
+ openModal("Upravit fakturu",`<label>Číslo / označení faktury</label><input id="invname" value="${esc(i.name)}">
+ <label>Částka</label><input id="amount" type="number" inputmode="decimal" min="1" value="${i.amount}">
+ <label>Datum vystavení</label><input id="date" type="date" value="${i.date}">
+ <button class="primary" onclick="saveEditedInvoice('${personId}','${invoiceId}')">Uložit změny</button>`);
+}
+function saveEditedInvoice(personId,invoiceId){
+ const p=state.people.find(x=>x.id===personId),i=(p.invoices||[]).find(x=>x.id===invoiceId);if(!i)return;
+ const paid=invoicePaid(p,invoiceId),amount=Number(document.getElementById("amount").value),name=document.getElementById("invname").value.trim()||"Faktura",date=document.getElementById("date").value;
+ if(amount<=0)return alert("Zadej platnou částku.");
+ if(amount<paid)return alert("Částka faktury nemůže být nižší než částka, která už byla na tuto fakturu započtena ("+money(paid)+").");
+ i.amount=amount;i.name=name;i.date=date;
+ let t=p.transactions.find(x=>x.type==="invoice"&&x.invoiceId===invoiceId);
+ if(t){t.amount=isOweMe(p)?amount:-amount;t.date=date;t.note=name;}
+ save();closeModal();render();
+}
+function saveInvoice(existing){
+ let name=existing?state.people.find(p=>p.id===existing).name:document.getElementById("name").value.trim(), direction=existing?directionOf(state.people.find(p=>p.id===existing)):document.getElementById("direction").value, amount=Number(document.getElementById("amount").value), invname=document.getElementById("invname").value.trim()||"Faktura",date=document.getElementById("date").value;
+ if(!name||amount<=0){playSound("error");return alert("Vyplň odběratele a částku.");}
+ let p=existing?state.people.find(x=>x.id===existing):ensurePerson(name,direction);
+ const file=document.getElementById("photo")?.files?.[0];
+ const finish=(photo)=>{if(photo)p.photo=photo;p.direction=p.direction||direction;let id=crypto.randomUUID();p.invoices.push({id,name:invname,amount,date,direction:directionOf(p)});p.transactions.push({id:crypto.randomUUID(),type:"invoice",invoiceId:id,amount:directionOf(p)==="oweMe"?amount:-amount,date,note:invname});if(save()){current=p.id;closeModal();playSound("add");render();}};
+ if(file){imageToDataURL(file).then(finish).catch(e=>alert(e.message));}else finish(null);
+}
+function deleteInvoice(personId,invoiceId){
+ const p=state.people.find(x=>x.id===personId),i=(p.invoices||[]).find(x=>x.id===invoiceId);if(!i)return;
+ const paid=invoicePaid(p,invoiceId);
+ const msg=paid>0
+ ? `Tato faktura má už započteno ${money(paid)}. Smazáním faktury se odstraní její evidence, ale přijaté platby zůstanou v historii splátek. Pokračovat?`
+ : "Opravdu smazat tuto fakturu?";
+ if(!confirm(msg))return;
+ p.invoices=p.invoices.filter(x=>x.id!==invoiceId);
+ p.allocations=(p.allocations||[]).filter(a=>a.invoiceId!==invoiceId);
+ p.transactions=p.transactions.filter(t=>!(t.type==="invoice"&&t.invoiceId===invoiceId));
+ save();render();
+}
+function addPayment(id){
+ let p=state.people.find(x=>x.id===id),open=(p.invoices||[]).filter(i=>invoicePaid(p,i.id)<i.amount);
+ openModal(isOweMe(p)?"Zapsat přijatou platbu":"Zapsat zaplacenou částku",`<div class="remaining"><span>Aktuálně neuhrazeno</span><b>${money(open.reduce((s,i)=>s+i.amount-invoicePaid(p,i.id),0))}</b></div>
+ <label>${isOweMe(p)?"Kolik přišlo na účet?":"Kolik jsem zaplatil?"}</label><input id="amount" type="number" inputmode="decimal" min="1" placeholder="21000">
+ <label>Datum přijetí</label><input id="date" type="date" value="${new Date().toISOString().slice(0,10)}">
+ <label>Poznámka (volitelně)</label><input id="note" placeholder="Např. Air Bank">
+ <button class="primary" onclick="savePayment('${id}')">＋ ${isOweMe(p)?"Přijmout a rozdělit automaticky":"Uhradit a rozdělit automaticky"}</button>
+ <p class="muted" style="text-align:center;margin:12px 0 0">Částka se automaticky započte od nejstaršího neuhrazeného záznamu.</p>`);
+}
+function savePayment(id){
+ let p=state.people.find(x=>x.id===id),amount=Number(document.getElementById("amount").value),date=document.getElementById("date").value,note=document.getElementById("note").value.trim();
+ if(amount<=0)return alert("Zadej platnou částku.");
+ let remaining=amount;
+ let invoices=[...(p.invoices||[])].sort((a,b)=>new Date(a.date)-new Date(b.date));
+ let completed=[];
+ let paymentId=crypto.randomUUID();
+ for(let inv of invoices){let already=invoicePaid(p,inv.id),left=inv.amount-already;if(left<=0)continue;let use=Math.min(left,remaining);p.allocations.push({id:crypto.randomUUID(),invoiceId:inv.id,amount:use,date,paymentId});remaining-=use;if(already<inv.amount && already+use>=inv.amount)completed.push(inv);if(remaining<=0)break}
+ p.transactions.push({id:paymentId,type:"payment",amount:isOweMe(p)?-amount:amount,date,note});save();closeModal();playSound(completed.length?"paid":"add");render();
+ if(completed.length)setTimeout(()=>alert("✓ Faktura "+completed.map(x=>x.name).join(", ")+" byla právě splacena."),120);
+}
+function rebuildAllocations(p){
+ p.allocations=[];
+ let invoices=[...(p.invoices||[])].sort((a,b)=>new Date(a.date)-new Date(b.date)||String(a.id).localeCompare(String(b.id)));
+ let payments=[...(p.transactions||[])].filter(t=>t.type==="payment").sort((a,b)=>new Date(a.date)-new Date(b.date)||String(a.id).localeCompare(String(b.id)));
+ for(let t of payments){let remaining=Math.abs(Number(t.amount)||0);for(let inv of invoices){let already=invoicePaid(p,inv.id),left=inv.amount-already;if(left<=0)continue;let use=Math.min(left,remaining);if(use>0)p.allocations.push({id:crypto.randomUUID(),invoiceId:inv.id,amount:use,date:t.date,paymentId:t.id});remaining-=use;if(remaining<=0)break;}}
+}
+function editPayment(personId,paymentId){
+ const p=state.people.find(x=>x.id===personId),t=p?.transactions.find(x=>x.id===paymentId&&x.type==="payment");if(!t)return;
+ openModal("Upravit přijatou platbu",`<label>Kolik skutečně přišlo na účet?</label><input id="amount" type="number" inputmode="decimal" min="1" value="${Math.abs(t.amount)}"><label>Datum přijetí</label><input id="date" type="date" value="${t.date}"><label>Poznámka (volitelně)</label><input id="note" value="${esc(t.note||"")}"><button class="primary" onclick="saveEditedPayment('${personId}','${paymentId}')">Uložit změny</button>`);
+}
+function saveEditedPayment(personId,paymentId){
+ const p=state.people.find(x=>x.id===personId),t=p?.transactions.find(x=>x.id===paymentId&&x.type==="payment");if(!t)return;
+ const amount=Number(document.getElementById("amount").value),date=document.getElementById("date").value,note=document.getElementById("note").value.trim();
+ if(amount<=0)return alert("Zadej platnou částku.");
+ t.amount=isOweMe(p)?-amount:amount;t.date=date;t.note=note;rebuildAllocations(p);save();closeModal();playSound("add");render();
+}
+function deletePayment(personId,paymentId){
+ const p=state.people.find(x=>x.id===personId),t=p?.transactions.find(x=>x.id===paymentId&&x.type==="payment");if(!t)return;
+ if(!confirm("Opravdu smazat tuto přijatou platbu? Rozdělení plateb mezi faktury se přepočítá."))return;
+ p.transactions=p.transactions.filter(x=>x.id!==paymentId);rebuildAllocations(p);save();playSound("add");render();
+}
+function settings(){
+ current="__settings";document.getElementById("header").style.display="none";document.getElementById("main").innerHTML=`<button class="back" onclick="current=null;render()">‹ Zpět</button><h2>Nastavení</h2>
+ <div class="card settings">
+ <div class="item switch"><span><b>Tmavý režim</b><div class="muted">Černé pozadí a tmavé karty</div></span><input type="checkbox" ${state.theme==="dark"?"checked":""} onchange="toggleTheme(this.checked)" style="width:22px;height:22px"></div>
+ <div class="item switch"><span><b>Zvuky aplikace</b><div class="muted">Krátké zvuky při přidání a splacení</div></span><input type="checkbox" ${state.sounds!==false?"checked":""} onchange="toggleSounds(this.checked)" style="width:22px;height:22px"></div>
+ <div class="item"><b>PIN aplikace</b><div class="muted">Změní nebo vypne zámek aplikace na tomto zařízení.</div><button class="secondary" onclick="changePin()">🔐 Změnit PIN</button><button class="secondary danger" onclick="removePin()">Vypnout PIN</button></div>
+ <div class="item"><b>Data</b><div class="muted">Data se ukládají lokálně v aplikaci. Doporučuji pravidelnou zálohu.</div>
+ <button class="primary" onclick="exportBackup()">💾 Uložit zálohu</button>
+ <button class="secondary" onclick="document.getElementById('importFile').click()">📥 Obnovit ze zálohy</button>
+ <input id="importFile" type="file" accept="application/json,.json" style="display:none" onchange="importBackup(this)">
+ </div></div>`}
+function exportBackup(){
+ const payload={app:"Dluhy",version:5,exportedAt:new Date().toISOString(),state};
+ const json=JSON.stringify(payload,null,2);
+ const blob=new Blob([json],{type:"application/json"});
+ const fileName="dluhy-zaloha-"+new Date().toISOString().slice(0,10)+".json";
+ try{
+  const file=new File([blob],fileName,{type:"application/json"});
+  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+   navigator.share({title:"Dluhy – záloha",text:"Záloha dat aplikace Dluhy",files:[file]}).catch(()=>{});
+   return;
+  }
+ }catch(e){}
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fileName;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+}
+function importBackup(input){
+ const file=input.files?.[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const payload=JSON.parse(reader.result);
+   const imported=payload?.state||payload;
+   if(!imported || !Array.isArray(imported.people))throw new Error("Neplatný soubor zálohy.");
+   if(!confirm("Obnovením zálohy se přepíšou současná data v aplikaci. Pokračovat?"))return;
+   state={people:imported.people||[],theme:imported.theme||"light",sounds:imported.sounds!==false};
+   if(!save())return;
+   applyTheme();current=null;render();alert("✓ Záloha byla úspěšně obnovena.");
+  }catch(e){alert("Zálohu se nepodařilo načíst. Vyber soubor vytvořený aplikací Dluhy.");}
+  input.value="";
+ };
+ reader.onerror=()=>{alert("Soubor se nepodařilo načíst.");input.value=""};
+ reader.readAsText(file);
+}
+function toggleSounds(on){state.sounds=on;save();settings()}
+function toggleTheme(on){state.theme=on?"dark":"light";save();applyTheme();settings()}
+function changePhoto(id){
+ const p=state.people.find(x=>x.id===id);if(!p)return;
+ openModal("Fotka dlužníka",`<label>Vyber obrázek</label><input id="newphoto" type="file" accept="image/*"><button class="primary" onclick="savePhoto('${id}')">Uložit fotku</button>${p.photo?'<button class="secondary danger" onclick="removePhoto(\''+id+'\')">Odstranit fotku</button>':""}`);
+}
+function savePhoto(id){
+ const p=state.people.find(x=>x.id===id),file=document.getElementById("newphoto")?.files?.[0];if(!file)return alert("Vyber obrázek.");
+ imageToDataURL(file).then(photo=>{p.photo=photo;if(save()){closeModal();playSound("add");render()}}).catch(e=>alert(e.message));
+}
+function removePhoto(id){const p=state.people.find(x=>x.id===id);if(!p)return;p.photo=null;save();closeModal();render()}
+function deletePerson(id){if(confirm("Opravdu smazat osobu i její historii?")){state.people=state.people.filter(p=>p.id!==id);save();current=null;render()}}
+async function hashPin(pin){const data=new TextEncoder().encode(pin);const buf=await crypto.subtle.digest("SHA-256",data);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("")}
+function validPin(p){return /^\d{4,6}$/.test(p)}
+async function initLock(){
+ const saved=localStorage.getItem("dluhy_pin_hash");
+ const pin=document.getElementById("pin"),pin2=document.getElementById("pin2"),btn=document.getElementById("lockBtn"),title=document.getElementById("lockTitle"),textEl=document.getElementById("lockText"),err=document.getElementById("lockErr");
+ if(!saved){title.textContent="Nastav PIN";textEl.textContent="Zvol si 4–6místný PIN pro otevření aplikace.";pin2.style.display="block";btn.textContent="Nastavit PIN"}
+ btn.onclick=async()=>{err.textContent="";const a=pin.value.trim();if(!validPin(a)){err.textContent="PIN musí mít 4–6 číslic.";return}
+  if(!saved){if(a!==pin2.value.trim()){err.textContent="PINy se neshodují.";return}localStorage.setItem("dluhy_pin_hash",await hashPin(a));unlock();return}
+  if((await hashPin(a))===localStorage.getItem("dluhy_pin_hash")){unlock()}else{err.textContent="Špatný PIN.";pin.value="";playSound("error")}
+ };
+ pin.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click()});pin2.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click()});
+}
+function unlock(){document.body.className="unlocked";document.getElementById("lock").style.display="none";render()}
+function lockApp(){document.body.className="locked";document.getElementById("lock").style.display="flex";const p=document.getElementById("pin");p.value="";document.getElementById("lockErr").textContent="";document.getElementById("lockTitle").textContent="Dluhy jsou zamčené";document.getElementById("lockText").textContent="Zadej PIN pro otevření aplikace.";document.getElementById("pin2").style.display="none";document.getElementById("lockBtn").textContent="Odemknout"}
+async function changePin(){const old=prompt("Zadej současný PIN:");if(old===null)return;if(!localStorage.getItem("dluhy_pin_hash")||await hashPin(old)!==localStorage.getItem("dluhy_pin_hash"))return alert("Špatný PIN.");const n=prompt("Zadej nový PIN (4–6 číslic):");if(!validPin(n))return alert("PIN musí mít 4–6 číslic.");localStorage.setItem("dluhy_pin_hash",await hashPin(n));alert("PIN byl změněn.")}
+async function removePin(){const old=prompt("Zadej současný PIN:");if(old===null)return;if(!localStorage.getItem("dluhy_pin_hash")||await hashPin(old)!==localStorage.getItem("dluhy_pin_hash"))return alert("Špatný PIN.");if(confirm("Opravdu vypnout PIN?")){localStorage.removeItem("dluhy_pin_hash");alert("PIN je vypnutý.")}}
+window.addEventListener("visibilitychange",()=>{if(document.hidden&&localStorage.getItem("dluhy_pin_hash"))lockApp()});
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");filter=b.dataset.filter;render()});
+document.getElementById("fab").onclick=()=>addInvoice();
+initLock();
+if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(err => console.warn("Service worker:", err))); }\n</script></body></html>
