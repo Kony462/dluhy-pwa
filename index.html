@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n<meta name="apple-mobile-web-app-title" content="Dluhy">\n<link rel="manifest" href="manifest.webmanifest">\n<link rel="apple-touch-icon" href="icon.svg">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f14">
 <title>Dluhy</title>
 <style>
@@ -18,7 +18,7 @@ button{font:inherit;cursor:pointer}.primary,.secondary{width:100%;border:0;borde
 .locked #lock{display:flex}.unlocked .app{display:block}.lock{position:fixed;inset:0;background:var(--bg);color:var(--text);display:none;align-items:center;justify-content:center;padding:24px;z-index:100}.lockbox{width:min(420px,100%);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 12px 40px #0002}.lockbox h2{margin:0 0 8px}.lockbox p{color:var(--muted);line-height:1.45}.lockbox .err{color:var(--red);min-height:20px;font-size:14px;margin-top:8px}</style>
 </head>
 <body class="locked">
-<div id="lock" class="lock"><div class="lockbox"><div style="font-size:42px">🔐</div><h2 id="lockTitle">Dluhy jsou zamčené</h2><p id="lockText">Nastav si 4–6místný PIN. PIN bude uložen pouze v tomto zařízení.</p><input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" type="password" placeholder="PIN"><input id="pin2" inputmode="numeric" maxlength="6" type="password" placeholder="PIN znovu" style="margin-top:8px;display:none"><button class="primary" id="lockBtn">Pokračovat</button><div class="err" id="lockErr"></div><div class="muted" style="margin-top:12px;font-size:12px">PIN chrání přístup k aplikaci na tomto zařízení.</div></div></div>
+<div id="lock" class="lock"><div class="lockbox"><div style="font-size:42px">🔐</div><h2 id="lockTitle">Nastav PIN</h2><p id="lockText">Zvol si 4–6místný PIN pro otevření aplikace.</p><input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" type="password" placeholder="PIN"><input id="pin2" inputmode="numeric" maxlength="6" type="password" placeholder="PIN znovu" style="margin-top:8px;display:none"><button class="primary" id="lockBtn">Pokračovat</button><div class="err" id="lockErr"></div><div class="muted" style="margin-top:12px;font-size:12px">PIN chrání přístup k aplikaci na tomto zařízení.</div></div></div>
 
 <div class="app">
 <header id="header"><h1>Dluhy</h1><div class="sub">Půjčky, faktury a splátky na jednom místě.</div>
@@ -260,14 +260,30 @@ function deletePerson(id){if(confirm("Opravdu smazat osobu i její historii?")){
 async function hashPin(pin){const data=new TextEncoder().encode(pin);const buf=await crypto.subtle.digest("SHA-256",data);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("")}
 function validPin(p){return /^\d{4,6}$/.test(p)}
 async function initLock(){
- const saved=localStorage.getItem("dluhy_pin_hash");
- const pin=document.getElementById("pin"),pin2=document.getElementById("pin2"),btn=document.getElementById("lockBtn"),title=document.getElementById("lockTitle"),textEl=document.getElementById("lockText"),err=document.getElementById("lockErr");
- if(!saved){title.textContent="Nastav PIN";textEl.textContent="Zvol si 4–6místný PIN pro otevření aplikace.";pin2.style.display="block";btn.textContent="Nastavit PIN"}
- btn.onclick=async()=>{err.textContent="";const a=pin.value.trim();if(!validPin(a)){err.textContent="PIN musí mít 4–6 číslic.";return}
-  if(!saved){if(a!==pin2.value.trim()){err.textContent="PINy se neshodují.";return}localStorage.setItem("dluhy_pin_hash",await hashPin(a));unlock();return}
-  if((await hashPin(a))===localStorage.getItem("dluhy_pin_hash")){unlock()}else{err.textContent="Špatný PIN.";pin.value="";playSound("error")}
- };
- pin.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click()});pin2.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click()});
+  const pin=document.getElementById("pin"),pin2=document.getElementById("pin2"),btn=document.getElementById("lockBtn"),title=document.getElementById("lockTitle"),textEl=document.getElementById("lockText"),err=document.getElementById("lockErr");
+  const configure=()=>{
+    const hasPin=!!localStorage.getItem("dluhy_pin_hash");
+    pin.value=""; pin2.value=""; err.textContent="";
+    pin2.style.display=hasPin?"none":"block";
+    title.textContent=hasPin?"Dluhy jsou zamčené":"Nastav PIN";
+    textEl.textContent=hasPin?"Zadej PIN pro otevření aplikace.":"Zvol si 4–6místný PIN pro otevření aplikace.";
+    btn.textContent=hasPin?"Odemknout":"Nastavit PIN";
+  };
+  configure();
+  btn.onclick=async()=>{
+    err.textContent="";
+    const a=pin.value.trim();
+    const hasPin=!!localStorage.getItem("dluhy_pin_hash");
+    if(!validPin(a)){err.textContent="PIN musí mít 4–6 číslic.";return}
+    if(!hasPin){
+      if(a!==pin2.value.trim()){err.textContent="PINy se neshodují.";return}
+      localStorage.setItem("dluhy_pin_hash",await hashPin(a));unlock();return
+    }
+    if((await hashPin(a))===localStorage.getItem("dluhy_pin_hash")){unlock()}
+    else{err.textContent="Špatný PIN.";pin.value="";playSound("error")}
+  };
+  pin.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click()});
+  pin2.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click()});
 }
 function unlock(){document.body.className="unlocked";document.getElementById("lock").style.display="none";render()}
 function lockApp(){document.body.className="locked";document.getElementById("lock").style.display="flex";const p=document.getElementById("pin");p.value="";document.getElementById("lockErr").textContent="";document.getElementById("lockTitle").textContent="Dluhy jsou zamčené";document.getElementById("lockText").textContent="Zadej PIN pro otevření aplikace.";document.getElementById("pin2").style.display="none";document.getElementById("lockBtn").textContent="Odemknout"}
@@ -277,4 +293,4 @@ window.addEventListener("visibilitychange",()=>{if(document.hidden&&localStorage
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");filter=b.dataset.filter;render()});
 document.getElementById("fab").onclick=()=>addInvoice();
 initLock();
-if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(err => console.warn("Service worker:", err))); }\n</script></body></html>
+</script></body></html>
