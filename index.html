@@ -262,23 +262,47 @@ function settings(){
  <button class="secondary" onclick="document.getElementById('importFile').click()">📥 Obnovit ze zálohy</button>
  <input id="importFile" type="file" accept="application/json,.json" style="display:none" onchange="importBackup(this)">
  </div></div>`}
+let backupObjectUrl=null;
 function exportBackup(){
  try{
   const payload={app:"Dluhy",version:6,exportedAt:new Date().toISOString(),state};
   const json=JSON.stringify(payload,null,2);
   const blob=new Blob([json],{type:"application/json;charset=utf-8"});
   const fileName="dluhy-zaloha-"+new Date().toISOString().slice(0,10)+".json";
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;
-  a.download=fileName;
-  a.style.display="none";
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},10000);
+  if(backupObjectUrl){URL.revokeObjectURL(backupObjectUrl);backupObjectUrl=null;}
+  backupObjectUrl=URL.createObjectURL(blob);
+  window.__dluhyBackupJson=json;
+  let panel=document.getElementById("backupResult");
+  if(!panel){
+   panel=document.createElement("div");panel.id="backupResult";
+   panel.style.cssText="margin-top:12px;padding:14px;border:1px solid var(--green);border-radius:12px;background:var(--card);";
+   const exportButton=[...document.querySelectorAll('button')].find(b=>b.textContent.includes('Uložit zálohu'));
+   (exportButton?.parentElement||document.getElementById('main')).appendChild(panel);
+  }
+  panel.innerHTML=`<b style="color:var(--green)">✓ Záloha je připravená (${(blob.size/1024).toFixed(1)} kB).</b>
+   <a id="backupDownloadLink" href="${backupObjectUrl}" download="${fileName}" style="display:block;text-align:center;margin-top:10px;padding:13px;border-radius:10px;background:var(--green);color:white;font-weight:800;text-decoration:none">⬇ Stáhnout soubor ${fileName}</a>
+   <button class="secondary" style="margin-top:9px" onclick="copyBackupData()">Kopírovat zálohu jako text</button>
+   <div class="muted" style="margin-top:7px">Pokud stažení neproběhne, zkopíruj text zálohy a ulož ho do souboru s koncovkou .json.</div>`;
+  panel.scrollIntoView({behavior:"smooth",block:"nearest"});
  }catch(e){
-  alert("Zálohu se nepodařilo vytvořit. Zkontroluj prosím nastavení stahování v prohlížeči.");
   console.error("Export zálohy selhal:",e);
+  alert("Zálohu se nepodařilo připravit: "+(e?.message||e));
+ }
+}
+async function copyBackupData(){
+ const json=window.__dluhyBackupJson;
+ if(!json)return alert("Nejdřív připrav zálohu tlačítkem Uložit zálohu.");
+ try{
+  if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(json);alert("✓ Záloha byla zkopírována do schránky.");return;}
+ }catch(e){}
+ const area=document.createElement("textarea");area.value=json;area.style.cssText="position:fixed;left:-9999px;top:0";document.body.appendChild(area);area.focus();area.select();
+ let ok=false;try{ok=document.execCommand("copy");}catch(e){}
+ area.remove();
+ if(ok)alert("✓ Záloha byla zkopírována do schránky.");
+ else{
+  const win=window.open("","_blank");
+  if(win){win.document.write("<title>Dluhy – záloha</title><textarea style='width:100%;height:95vh;box-sizing:border-box'></textarea>");win.document.querySelector("textarea").value=json;win.document.close();}
+  else alert("Kopírování se nepodařilo. Povol v Opeře vyskakovací okna pro tuto stránku a zkus to znovu.");
  }
 }
 function migrateState(source){

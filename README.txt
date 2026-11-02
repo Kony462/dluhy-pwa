@@ -1,29 +1,21 @@
-DLUHY V2 – NASAZENI DO OSTRÉ VERZE
+OPRAVA EXPORTU ZÁLOHY – DLUHY V2
 
-Obsah balíčku:
-- index.html
-- manifest.webmanifest
-- sw.js
-- icon.svg
+Tato oprava nahrazuje pouze soubory aplikace, nikoli uložená data.
 
-PŘED NASAZENÍM:
-1. Otevři současnou aplikaci na iPhonu i na Macu (pokud ji používáš na obou zařízeních).
-2. V Nastavení aplikace udělej Export zálohy a ulož soubor mimo GitHub.
-3. GitHub repo Kony462/dluhy-pwa si nejdřív stáhni jako ZIP nebo vytvoř kopii původních souborů.
+NASAZENÍ NA GITHUB PAGES:
+1. Rozbal ZIP.
+2. V kořenové složce repozitáře na GitHubu nahraj a přepiš:
+   - index.html
+   - sw.js
+3. Commitni změny do větve main.
+4. Po nasazení otevři aplikaci v Opeře a obnov stránku přes Cmd+Shift+R.
 
-NASAZENÍ:
-1. Otevři https://github.com/Kony462/dluhy-pwa
-2. Nahraď v kořeni repozitáře soubory index.html, manifest.webmanifest, sw.js a icon.svg těmito soubory.
-3. Commit změn.
-4. Počkej na dokončení GitHub Pages a otevři https://kony462.github.io/dluhy-pwa/.
-5. Pokud se zobrazí stará verze, zavři aplikaci úplně a znovu ji otevři; nový service worker používá novou cache.
+CO SE MĚNÍ:
+- Export nejprve připraví zálohu a zobrazí viditelný odkaz ke stažení.
+- Přidána je záložní možnost zkopírovat JSON do schránky.
+- Service worker dostal novou verzi cache, aby zařízení nepoužívalo starý index.html.
+- Uložená data v localStorage se nemění.
 
-DATA A BEZPEČNOST:
-- Aplikace ukládá data lokálně v prohlížeči / zařízení. Nasazení na stejnou GitHub Pages adresu samo o sobě nemaže localStorage.
-- Mac a iPhone mají oddělená lokální data; mezi zařízeními se nesynchronizují.
-- Záloha musí zůstat soukromá. Nikdy ji nenahrávej do veřejného GitHub repozitáře.
-- PIN není šifrování dat.
-- Před aktualizací měj export aktuálních dat. Pokud se něco pokazí, lze vrátit původní soubory a obnovit zálohu.
-
-POZNÁMKA K OVĚŘENÍ:
-JavaScript prošel syntaktickou kontrolou. Před tímto nasazením nebyl dokončen test importu na iPhonu ani kontrola zobrazení na reálném iPhonu. Po nasazení proto nejdřív ověř data, faktury a platby; nic nemaž a neprováděj hromadné opravy, dokud nesedí součty.
+DŮLEŽITÉ:
+- Nikdy nenahrávej svůj JSON se zálohou do GitHubu.
+- Tato oprava nemá přístup k datům uloženým v prohlížeči a sama je nikam neposílá.
