@@ -263,18 +263,23 @@ function settings(){
  <input id="importFile" type="file" accept="application/json,.json" style="display:none" onchange="importBackup(this)">
  </div></div>`}
 function exportBackup(){
- const payload={app:"Dluhy",version:6,exportedAt:new Date().toISOString(),state};
- const json=JSON.stringify(payload,null,2);
- const blob=new Blob([json],{type:"application/json"});
- const fileName="dluhy-zaloha-"+new Date().toISOString().slice(0,10)+".json";
  try{
-  const file=new File([blob],fileName,{type:"application/json"});
-  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-   navigator.share({title:"Dluhy – záloha",text:"Záloha dat aplikace Dluhy",files:[file]}).catch(()=>{});
-   return;
-  }
- }catch(e){}
- const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fileName;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+  const payload={app:"Dluhy",version:6,exportedAt:new Date().toISOString(),state};
+  const json=JSON.stringify(payload,null,2);
+  const blob=new Blob([json],{type:"application/json;charset=utf-8"});
+  const fileName="dluhy-zaloha-"+new Date().toISOString().slice(0,10)+".json";
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=fileName;
+  a.style.display="none";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},10000);
+ }catch(e){
+  alert("Zálohu se nepodařilo vytvořit. Zkontroluj prosím nastavení stahování v prohlížeči.");
+  console.error("Export zálohy selhal:",e);
+ }
 }
 function migrateState(source){
  const data=source&&typeof source==="object"?source:{};
