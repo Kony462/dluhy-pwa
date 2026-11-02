@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Dluhy",
   "short_name": "Dluhy",
-  "description": "Půjčky, faktury a splátky na jednom místě.",
+  "description": "Evidence faktur, splatností, plateb a závazků.",
   "lang": "cs-CZ",
   "start_url": "./",
   "scope": "./",
