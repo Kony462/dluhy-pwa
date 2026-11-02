@@ -284,6 +284,9 @@ function exportBackup(){
    <button class="secondary" style="margin-top:9px" onclick="copyBackupData()">Kopírovat zálohu jako text</button>
    <div class="muted" style="margin-top:7px">Pokud stažení neproběhne, zkopíruj text zálohy a ulož ho do souboru s koncovkou .json.</div>`;
   panel.scrollIntoView({behavior:"smooth",block:"nearest"});
+  // Spustit stažení přímo v rámci kliknutí uživatele; viditelný odkaz zůstává jako záloha.
+  const downloadLink=document.getElementById("backupDownloadLink");
+  if(downloadLink) downloadLink.click();
  }catch(e){
   console.error("Export zálohy selhal:",e);
   alert("Zálohu se nepodařilo připravit: "+(e?.message||e));
